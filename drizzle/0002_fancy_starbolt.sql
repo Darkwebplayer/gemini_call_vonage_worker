@@ -1,0 +1,1 @@
+ALTER TABLE `job_details` ADD `contacted_at` text;

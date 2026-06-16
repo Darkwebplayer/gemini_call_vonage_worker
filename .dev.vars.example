@@ -1,0 +1,9 @@
+# Local-only secrets for `wrangler dev`. Copy to `.dev.vars` and fill in.
+# Never commit `.dev.vars`. In production use `wrangler secret put <NAME>` instead.
+
+GEMINI_API_KEY=""
+VONAGE_APPLICATION_ID=""
+VONAGE_NUMBER=""   # your Vonage number we call FROM, E.164 no + (e.g. 447700900999)
+ADMIN_KEY=""       # password for the admin UI (Basic Auth) — type anything for username
+# PKCS#8 PEM, newlines as \n on one line, e.g. "-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----\n"
+VONAGE_PRIVATE_KEY=""

@@ -1,0 +1,1 @@
+ALTER TABLE `availability` ADD `checked_days` text;

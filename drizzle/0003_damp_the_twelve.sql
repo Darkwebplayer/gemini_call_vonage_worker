@@ -1,0 +1,1 @@
+DROP INDEX `workers_phone_unique`;

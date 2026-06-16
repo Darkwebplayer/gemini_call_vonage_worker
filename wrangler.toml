@@ -1,0 +1,30 @@
+name = "callworker"
+main = "src/index.ts"
+compatibility_date = "2025-06-01"
+
+[[durable_objects.bindings]]
+name = "CALL_BRIDGE"
+class_name = "CallBridge"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["CallBridge"]
+
+[[d1_databases]]
+binding = "callworker"
+database_name = "callworker"
+database_id = "c5a5ff12-e38b-4a78-8ddf-a89276b17e18"   # wrangler d1 create callworker
+migrations_dir = "drizzle"                              # drizzle-kit generate output
+
+# [limits]
+# cpu_ms = 300000
+
+# Optional: hostname Vonage dials back for the media socket.
+# Defaults to the request host if unset.
+# [vars]
+# PUBLIC_HOST = "callworker.your-subdomain.workers.dev"
+
+# Secrets (set with `wrangler secret put`), never inline:
+#   GEMINI_API_KEY
+#   VONAGE_PRIVATE_KEY        (PKCS#8 PEM, the application private key)
+#   VONAGE_APPLICATION_ID
