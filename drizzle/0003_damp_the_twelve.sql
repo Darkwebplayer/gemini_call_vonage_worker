@@ -1,1 +1,1 @@
-DROP INDEX `workers_phone_unique`;
+DROP INDEX IF EXISTS `workers_phone_unique`;

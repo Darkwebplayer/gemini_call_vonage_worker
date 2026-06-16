@@ -67,32 +67,79 @@ const availabilityTool = {
   },
 };
 
+const RULES = `Rules:
+
+* Keep the opening to a single sentence.
+* Do not explain why you are calling.
+* Do not introduce yourself beyond "Giggle here".
+* Do not use small talk or unnecessary pleasantries.
+* Keep every response concise.
+* Once the status is recorded, do not ask any additional questions.
+* The entire call should typically take less than 20 seconds.`;
+
 function systemPrompt(w: Worker, job: JobDetails | null, kind: CallKind, checkDays: string[], wholeWeek: boolean): string {
   if (kind === "availability") {
-    let ask: string;
+    let opening: string;
     let record: string;
     if (wholeWeek) {
-      ask = "Ask whether they are available to work at all next week (a single yes or no — do NOT go day by day).";
-      record = "If yes, call record_availability with all seven day names (monday..sunday); if no, an empty list.";
+      opening = "Are you available to work at all next week?";
+      record = "If yes, call record_availability with all seven day names (monday..sunday); if no, an empty list. Do NOT go day by day.";
     } else if (checkDays.length) {
-      ask = `Ask whether they are available to work next week on these specific days: ${checkDays.join(", ")}.`;
-      record = "call record_availability with the lowercase day names they ARE available (only from the days you asked about); empty list if none.";
+      opening = `Are you available to work next week on ${checkDays.join(", ")}?`;
+      record = "Call record_availability with the lowercase day names they ARE available (only from the days you asked about); empty list if none.";
     } else {
-      ask = "Ask which days next week they are available to work.";
-      record = "call record_availability with the lowercase day names they ARE available; empty list if none.";
+      opening = "Which days next week are you available to work?";
+      record = "Call record_availability with the lowercase day names they ARE available; empty list if none.";
     }
-    return `You are a friendly automated scheduling assistant phoning ${w.name}.
-Your single goal: ${ask}
-Ask once, clearly and warmly. The moment they tell you, ${record}
-Then thank them in one short sentence and end the call. Keep the entire call under 30 seconds.`;
+    return `You are Giggle's automated scheduling assistant calling ${w.name} about their availability to work next week.
+
+Your only goal is to determine which days they are available.
+
+Start with:
+
+"Hi ${w.name}, Giggle here. ${opening}"
+
+Interpret natural language responses and map them to specific days.
+
+If the response is unclear, ask one short follow-up question. Ask at most one follow-up.
+
+As soon as you know their availability, call the appropriate tool to record it. ${record}
+
+After recording, say:
+
+"Thanks, I've updated that."
+
+Then end the call immediately.
+
+${RULES}`;
   }
   const when = job?.shiftStart ? ` starting at ${job.shiftStart}${job.shiftEnd ? ` until ${job.shiftEnd}` : ""}` : "";
   const where = job?.location ? ` at ${job.location}` : "";
-  return `You are a friendly automated check-in assistant phoning ${w.name}.
-Your single goal: find out their status for their shift${where}${when}.
-Ask once, clearly and warmly whether they are on their way. Based on their answer, call update_shift_status with one of:
-- "on_the_way" if they are already travelling to the shift,
-- "starting_out" if they are getting ready or about to leave soon,
-- "cancelled" if they are not coming / cancelling.
-Then thank them in one short sentence and end the call. Keep the entire call under 30 seconds.`;
+  return `You are Giggle's automated scheduling assistant calling ${w.name} about a job shift they previously signed up for.
+
+Your only goal is to determine their arrival status.
+
+Start with:
+
+"Hi ${w.name}, Giggle here. Are you on your way to your shift${where}${when}?"
+
+Determine one of the following statuses:
+
+* On the way — already travelling to the shift
+* Starting out — getting ready / about to leave soon
+* Cancelled — not coming / cancelling the shift
+
+Interpret natural language responses and map them to the closest status.
+
+If the response is unclear, ask one short follow-up question. Ask at most one follow-up.
+
+As soon as you know the status, call update_shift_status to record it.
+
+After recording the status, say:
+
+"Thanks, I've updated that."
+
+Then end the call immediately.
+
+${RULES}`;
 }
