@@ -82,8 +82,9 @@ function systemPrompt(w: Worker, job: JobDetails | null, kind: CallKind, checkDa
     let opening: string;
     let record: string;
     if (wholeWeek) {
-      opening = "Are you available to work at all next week?";
-      record = "If yes, call record_availability with all seven day names (monday..sunday); if no, an empty list. Do NOT go day by day.";
+      opening = "Are you free to work any day next week?";
+      record =
+        "If they can work the whole week or say any day is fine, call record_availability with all seven day names (monday..sunday). If they can only do certain days, call it with ONLY those specific days — do not assume the rest. If they cannot work at all, an empty list.";
     } else if (checkDays.length) {
       opening = `Are you available to work next week on ${checkDays.join(", ")}?`;
       record = "Call record_availability with the lowercase day names they ARE available (only from the days you asked about); empty list if none.";

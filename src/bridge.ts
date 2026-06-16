@@ -8,7 +8,7 @@ import {
   type Worker,
   type JobDetails,
 } from "./db";
-import { buildSetup, geminiUrl, type CallKind } from "./gemini";
+import { buildSetup, geminiUrl, DAY_NAMES, type CallKind } from "./gemini";
 import { hangup } from "./vonage";
 import { Downsampler } from "./transcode";
 
@@ -131,7 +131,7 @@ export class CallBridge extends DurableObject<Env> {
                     text: `The worker ${this.worker?.name} has just answered the phone. Greet them by name and ${
                       this.kind === "availability"
                         ? this.wholeWeek
-                          ? "ask whether they are available to work next week"
+                          ? "ask whether they are free to work any day next week, and which days if only some"
                           : this.checkDays.length
                             ? `ask whether they are available to work next week on: ${this.checkDays.join(", ")}`
                             : "ask which days next week they are available to work"
@@ -187,7 +187,11 @@ export class CallBridge extends DurableObject<Env> {
           void recordShiftStatus(this.env, this.worker.id, this.callUuid, status);
         }
       } else if (fc.name === "record_availability") {
-        const days = Array.isArray(fc.args?.days) ? fc.args.days.filter((d: unknown) => typeof d === "string") : [];
+        // Keep only real day names — guards against the model echoing junk or the
+        // "whole_week" sentinel, which would otherwise be stored as availability.
+        const days = Array.isArray(fc.args?.days)
+          ? [...new Set(fc.args.days)].filter((d: unknown): d is string => typeof d === "string" && DAY_NAMES.includes(d))
+          : [];
         if (this.worker) void addAvailability(this.env, this.worker.id, days, this.checkDays);
       } else {
         continue;
